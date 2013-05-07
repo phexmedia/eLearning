@@ -85,6 +85,15 @@
 					"height" : height
 				});
 
+				$(jCanvas).mousemove(function(e) {
+					if(dragMode){
+						ctrlPoints[ctrlPointToDrag].x = e.pageX;
+						ctrlPoints[ctrlPointToDrag].y = e.pageY;
+						update();
+						updateSlider();					
+					}
+				});
+
 				//MOUSEHANDLERS
 				jCanvas.click(function(e) {
 					var clickPos = getMousePos(canvas, e);
@@ -95,7 +104,7 @@
 							if (Math.abs(ctrlPoints[i].x - clickPos.x) < pointSize / 2 && Math.abs(ctrlPoints[i].y - clickPos.y) < pointSize / 2) {
 								ctrlPointClicked = true;
 								dragMode = true;
-								ctrlPointToDrag = i; 
+								ctrlPointToDrag = i;
 								break;
 							} else {
 								ctrlPointClicked = false;
@@ -104,10 +113,6 @@
 						//console.log(ctrlPoints.length)
 					} else {
 						dragMode = false;
-						ctrlPoints[ctrlPointToDrag].x = clickPos.x;
-						ctrlPoints[ctrlPointToDrag].y = clickPos.y;
-						update();
-						updateSlider();
 					}
 
 					if (!ctrlPointClicked) {
