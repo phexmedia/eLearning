@@ -10,7 +10,7 @@
 	</head>
 	<body>
 	<div id ="wrapper">
-		<canvas id="canvas" width="600" height="400">
+		<canvas id="canvas" width="960" height="400">
 			No Html 5 support.
 		</canvas>
 		<!--<input type="text" name="t" value="0.2" id="t" />-->
@@ -46,7 +46,7 @@
 			// COLORS
 			var inactivePointColor = "#aaaaaa";
 			var inactiveLineColor = "#999999";
-			var activePointColor = "#aa00aa";
+			var activePointColor = "#00aa00";
 			var activeLineColor = "#aa0000";
 
 			// Farbe für den Punkt der die Strecken einteilt
@@ -62,7 +62,7 @@
 
 			var pointSize = 10;
 
-			var width = 700;
+			var width = 920;
 			var height = 400;
 
 			var canvas;
@@ -89,6 +89,7 @@
 					"width" : width,
 					"height" : height
 				});
+				canvas.width= canvas.width;
 				
 				$(jCanvas).mousedown(function(e) {
 					for (var i = 0; i < ctrlPoints.length; i++) {
@@ -118,6 +119,7 @@
 				
 				$(jCanvas).mousemove(function(e) {
 					if(dragMode) {
+
 						ctrlPoints[ctrlPointToDrag].x = getMousePos(canvas, e).x;
 						ctrlPoints[ctrlPointToDrag].y = getMousePos(canvas, e).y;
 						update();
@@ -151,7 +153,7 @@
 				});
 				
 				//TODO
-				tSlider = $('#detailSlider').slider({
+				detailSlider = $('#detailSlider').slider({
 					animate : 'fast',
 					value : t,
 					min : 10,
@@ -204,9 +206,8 @@
 
 			function drawCasteljau() {
 				canvas.width = canvas.width;
-				c.clearRect(0, 0, width, height);
 				c.fillStyle = backgroundColor;
-				c.fillRect(0, 0, width, height);
+				c.fillRect(0,0, width, height);
 				if (curvePoints.length > 0 && showCasteljauCurve) {
 					c.moveTo(curvePoints[0].x, curvePoints[0].y);
 					for (var i = 1; i < curvePoints.length; i++) {
