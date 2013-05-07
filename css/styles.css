@@ -49,13 +49,31 @@ table {
 
 #wrapper{
 	width:960px;
-	margin: 0 auto;
+	margin: 50px auto;
+	background:#CCCCCC;
+	padding-top:1px;
 	
 }
 
 /* http://phexmedia.de/Elearning/Decasteljau
    License: CC(author)
 */
-
-
+body{
+	background:#333333;
+	font-family:"Lucida Grande","Trebuchet MS", Tahoma, sans-serif;
+}
+div{
+	margin-top:10px;
+	margin-bottom:15px	
+	
+}
+.contentWrapper{
+	margin:20px;
+}
+.sliderWrapper{
+	float:left;
+	width:250px;
+	margin-right:50px;
+}
+.clear{clear:both}
 	

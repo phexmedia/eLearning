@@ -6,35 +6,44 @@
 		<script src="jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
 		<link  rel="stylesheet" type="text/css" href="jquery-ui-1.10.3/css/ui-darkness/jquery-ui-1.10.3.custom.min.css">
 		<link  rel="stylesheet" type="text/css" href="css/styles.css">
+		<title>DeCasteljau HTML 5 Interpolator</title>
 
 	</head>
 	<body>
 	<div id ="wrapper">
-		<canvas id="canvas" width="960" height="400">
-			No Html 5 support.
-		</canvas>
-		<!--<input type="text" name="t" value="0.2" id="t" />-->
-		<p>max. Rekursionstiefe: <span id ="maxDepth">1</span></p>
-		<div id = "depthSlider" style="width:300px"></div>
-		<p>Teilungsverh&auml;ltnis: <span id ="t">0.2:0.8</span></p>
-		<div id = "tSlider" style="width:300px"></div>
-		<p>Level of Detail:</p>
-		<div id = "detailSlider" style="width:300px"></div>
-		<p><input type="button" name="reset" value="reset" id="reset"/></p>
+		<div id="decastelJauContent" class="contentWrapper">
+			<canvas id="canvas" width="960" height="400">
+					No Html 5 support.
+				</canvas>
+				<!--<input type="text" name="t" value="0.2" id="t" />-->
+				<div class="sliderWrapper">
+					<p>max. Rekursionstiefe: <span id ="maxDepth">0</span></p>
+					<div id = "depthSlider"></div>
+				</div>
+				<div class="sliderWrapper">
+					<p>Teilungsverh&auml;ltnis: <span id ="t">0.2 : 0.8</span></p>
+					<div id = "tSlider"></div>
+				</div>
+				<div class="sliderWrapper">
+					<p>Level of Detail:</p>
+					<div id = "detailSlider"></div>
+				</div>
+					<div class="clear"></div>
+				<p><input type="button" name="reset" value="reset" id="reset"/></p>
+				
 		
-
-		show Iterations:
-		<input type="checkbox" name="showCasteljauIterations" id="showCasteljauIterations"/>
-		<br/>
-		show curve:
-		<input type="checkbox" name="showCasteljauCurve" id="showCasteljauCurve"/>
-		<br/>
-		show lines:
-		<input type="checkbox" name="showCasteljauLine" id="showCasteljauLine"/>
-		<br/>
-		showCasteljau Point:
-		<input type="checkbox" name="showCasteljauPoint" id="showCasteljauPoint"/>
-
+				show Iterations:
+				<input type="checkbox" name="showCasteljauIterations" id="showCasteljauIterations"/>
+				<br/>
+				show curve:
+				<input type="checkbox" name="showCasteljauCurve" id="showCasteljauCurve"/>
+				<br/>
+				show lines:
+				<input type="checkbox" name="showCasteljauLine" id="showCasteljauLine"/>
+				<br/>
+				showCasteljau Point:
+				<input type="checkbox" name="showCasteljauPoint" id="showCasteljauPoint"/>
+		</div id="decastelJauContent">
 	
 	
 	</div>
@@ -72,7 +81,7 @@
 			var curvePoints = new Array();
 			// Hier rein kommen die einzelnen Punkte der rekursionen des decasteljau rein
 			var cycles = new Array(new Array());
-			var maxDepth = 1;
+			var maxDepth = 0;
 
 			var tSlider;
 			var depthSlider;
@@ -147,7 +156,7 @@
 					max : 100,
 					slide : function(e, ui) {
 						t = ui.value / 100;
-						$('#t').text(t +':'+ (1-t));
+						$('#t').text(t.toPrecision(2) +' : '+ (1-t).toPrecision(2));
 						update();
 					}
 				});
@@ -222,6 +231,7 @@
 					if (i < ctrlPoints.length - 1) {
 						if (showCasteljauLine) {
 							// DRAW lines between ctrlpoints
+							console.log(ctrlPoints[i].x+","+ ctrlPoints[i].y +"to"+ctrlPoints[i + 1].x+", "+ctrlPoints[i + 1].y);
 							c.lineTo(ctrlPoints[i + 1].x, ctrlPoints[i + 1].y);
 							c.strokeStyle = inactiveLineColor;
 							c.stroke();
