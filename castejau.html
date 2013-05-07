@@ -86,7 +86,7 @@
 				$(jCanvas).mousedown(function(e) {
 					for (var i = 0; i < ctrlPoints.length; i++) {
 						var clickPos = getMousePos(canvas, e);
-							if (Math.abs(ctrlPoints[i].x - clickPos.x) < pointSize / 2 && Math.abs(ctrlPoints[i].y - clickPos.y) < pointSize / 2) {
+							if (Math.abs(ctrlPoints[i].x - clickPos.x) < pointSize && Math.abs(ctrlPoints[i].y - clickPos.y) < pointSize) {
 								dragMode = true;
 								ctrlPointToDrag = i;
 								break;
