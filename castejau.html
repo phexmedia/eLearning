@@ -50,7 +50,7 @@
 			var backgroundColor = "#eeeeee";
 
 			var showCasteljauCurve = false;
-			var showCastelJauIterations = false;
+			var showCasteljauIterations = false;
 			var showCasteljauLine = false;
 			var showCasteljauPoint = false;
 
@@ -148,34 +148,29 @@
 				});
 
 				$('#showCasteljauPoint').change(function(e) {
-					showCasteljauPoint = this.value;
+					showCasteljauPoint = this.checked;
 					update();
 				}).attr("checked", showCasteljauPoint);
 
 				$('#showCasteljauCurve').change(function(e) {
-					showCasteljauCurve = this.value;
+					showCasteljauCurve = this.checked;
 					update();
 				}).attr("checked", showCasteljauCurve);
 
 				$('#showCasteljauLine').change(function(e) {
-					showCasteljauLine = this.value;
+					showCasteljauLine = this.checked;
 					update();
 				}).attr("checked", showCasteljauLine);
 
-				$('#showCastelJauIterations').change(function(e) {
-					showCastelJauIterations = this.value;
+				$('#showCasteljauIterations').change(function(e) {
+					showCasteljauIterations = this.checked;
 					update();
-				}).attr("checked", showCastelJauIterations);
+				}).attr("checked", showCasteljauIterations);
 				
 				$('#reset').click(function(e) {
 					reset();
 				});
 
-				$('#t').blur(function(e) {
-					console.log("t set to " + this.value);
-					t = this.value;
-					update();
-				})
 				// INIT STAGE
 				update();
 			})
@@ -217,10 +212,11 @@
 					//DRAW CONTROLPOINTS
 					c.fillStyle = activePointColor;
 					c.fillRect(ctrlPoints[i].x - pointSize / 2, ctrlPoints[i].y - pointSize / 2, pointSize, pointSize);
-
+				}
 					//DRAW CASTELJAUPOINT FOR GIVEN T FROM SLIDER
 					//NIEMALS VERSCHIEBEN, LÖSCHEN ODER SO! Das hier befüllt cycles mit dem aktuellen wert. sollte einmal nach evalCasteljau kommen!
 					var point = getCasteljauPoint(1-t);
+					
 					if (showCasteljauPoint && ctrlPoints.length >= 3) {
 						c.fillStyle = casteljauPointColor;
 						c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
@@ -230,35 +226,40 @@
 					//DRAW HELPLINES
 					if (maxDepth > cycles.length)
 						maxDepth = cycles.length;
+						
+					if(showCasteljauIterations){
+					
+						for (var j = 1; j <= maxDepth; j++) {
+							var cycle = cycles[j] ? cycles[j] : undefined;
+							if (cycle) {
+								for (var k = 0; k < cycles[j].length; k++) {
+									// DRAW point that splits this range
+									var point = cycles[j][k];
+									if (point) {
 
-					for (var j = 1; j <= maxDepth; j++) {
-						var cycle = cycles[j] ? cycles[j] : undefined;
-						if (cycle) {
-							for (var k = 0; k < cycles[j].length; k++) {
-								// DRAW point that splits this range
-								var point = cycles[j][k];
-								if (point) {
+										c.fillStyle = tPointColor;
+										c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
 
-									c.fillStyle = tPointColor;
-									c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
-
-									// DRAW LINES between splitPoints
-									if (i < cycles[j].length - 1) {
-										var nextPoint = cycles[j][k + 1];
-										if (nextPoint) {
-											c.moveTo(point.x, point.y);
-											c.lineTo(nextPoint.x, nextPoint.y);
+										// DRAW LINES between splitPoints
+										if (k < cycles[j].length - 1) {
+											var nextPoint = cycles[j][k+1];
+											if (nextPoint) {
+												c.moveTo(point.x, point.y);
+												c.lineTo(nextPoint.x, nextPoint.y);
+												c.stroke();
+											}
 										}
 									}
+
 								}
 
 							}
 
 						}
-
+					
 					}
 
-				}
+				
 			}
 
 			function drawRecursions(maxDepth) {
