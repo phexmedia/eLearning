@@ -47,11 +47,10 @@
 
 			var backgroundColor = "#eeeeee";
 			
-			var showCasteljauCurve = true;
+			var showCasteljauCurve = false;
 			var showCasteljauIterations = false;
-			var showCasteljauLine = true;
-			var showTPoint = true;
-			var showCasteljauPoint = true;
+			var showCasteljauLine = false;
+			var showCasteljauPoint = false;
 
 			var pointSize = 10;
 
@@ -193,10 +192,10 @@
 					c.fillRect(ctrlPoints[i].x - pointSize / 2, ctrlPoints[i].y - pointSize / 2, pointSize, pointSize);
 					
 					//DRAW CASTELJAUPOINT FOR GIVEN T FROM SLIDER
+					//NIEMALS VERSCHIEBEN, LÖSCHEN ODER SO! Das hier befüllt cycles mit dem aktuellen wert. sollte einmal nach evalCasteljau kommen!
+					var point = getCasteljauPoint(1-t);
 					if (showCasteljauPoint && ctrlPoints.length >= 3) {
 						c.fillStyle = casteljauPointColor;
-						//NIEMALS VERSCHIEBEN, LÖSCHEN ODER SO! Das hier befüllt cycles mit dem aktuellen wert. sollte einmal nach evalCasteljau kommen!
-						point = getCasteljauPoint(1-t);
 						c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
 
 					}
