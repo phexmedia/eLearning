@@ -12,13 +12,16 @@
 			No Html 5 support.
 		</canvas>
 		<!--<input type="text" name="t" value="0.2" id="t" />-->
-		<p>max. Rekursionstiefe:</p>
+		<p>max. Rekursionstiefe: <span id ="maxDepth">1</span></p>
 		<div id = "depthSlider" style="width:300px"></div>
-		<p>Teilungsverhältnis:</p>
+		<p>Teilungsverh&auml;ltnis: <span id ="t">0.2:0.8</span></p>
 		<div id = "tSlider" style="width:300px"></div>
 		<input type="button" name="reset" value="reset" id="reset"/>
 		<br/>
 
+		show Iterations:
+		<input type="checkbox" name="showCasteljauIterations" id="showCasteljauIterations"/>
+		<br/>
 		show curve:
 		<input type="checkbox" name="showCasteljauCurve" id="showCasteljauCurve"/>
 		<br/>
@@ -45,7 +48,7 @@
 			var backgroundColor = "#eeeeee";
 			
 			var showCasteljauCurve = true;
-			var showCastelJauIterations = false;
+			var showCasteljauIterations = false;
 			var showCasteljauLine = true;
 			var showTPoint = true;
 			var showCasteljauPoint = true;
@@ -103,6 +106,7 @@
 					max : maxDepth,
 					slide : function(e, ui) {
 						maxDepth = ui.value;
+						$('#maxDepth').text(maxDepth);
 						update();
 					}
 				});
@@ -114,22 +118,29 @@
 					max : 100,
 					slide : function(e, ui) {
 						t = ui.value / 100;
+						$('#t').text(t +':'+ (1-t));
 						update();
 					}
 				});
 				
 				$('#showCasteljauCurve').change(function(e){
-					showCasteljauCurve = this.value;
+					showCasteljauCurve = this.checked;
 					update();
 				}).attr("checked", showCasteljauCurve);
 				
+				$('#showCasteljauIterations').change(function(e){
+					showCasteljauIterations = this.checked;
+					console.log(showCasteljauIterations);
+					update();
+				}).attr("checked", showCasteljauIterations);
+				
 				$('#showCasteljauLine').change(function(e){
-					showCasteljauLine = this.value;
+					showCasteljauLine = this.checked;
 					update();
 				}).attr("checked", showCasteljauLine);
 				
 				$('#showCasteljauPoint').change(function(e){
-					showCasteljauPoint = this.value;
+					showCasteljauPoint = this.checked;
 					update();
 				}).attr("checked", showCasteljauPoint);
 
@@ -137,11 +148,6 @@
 					reset();
 				});
 
-				$('#t').blur(function(e) {
-					console.log("t set to " + this.value);
-					t = this.value;
-					update();
-				})
 				// INIT STAGE
 				update();
 			})
@@ -161,6 +167,7 @@
 				c.clearRect(0, 0, width, height);
 				c.fillStyle = backgroundColor;
 				c.fillRect(0, 0, width, height);
+				
 				if (curvePoints.length > 0 && showCasteljauCurve) {
 					c.moveTo(curvePoints[0].x, curvePoints[0].y);
 					for (var i = 1; i < curvePoints.length; i++) {
@@ -188,6 +195,7 @@
 					//DRAW CASTELJAUPOINT FOR GIVEN T FROM SLIDER
 					if (showCasteljauPoint && ctrlPoints.length >= 3) {
 						c.fillStyle = casteljauPointColor;
+						//NIEMALS VERSCHIEBEN, LÖSCHEN ODER SO! Das hier befüllt cycles mit dem aktuellen wert. sollte einmal nach evalCasteljau kommen!
 						point = getCasteljauPoint(1-t);
 						c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
 
@@ -195,31 +203,30 @@
 					
 					//DRAW HELPLINES
 					if (maxDepth > cycles.length) maxDepth = cycles.length;
-					
-					for(var j = 1; j<=maxDepth;j++ ){
-						var cycle = cycles[j] ? cycles[j] : undefined;
-						if(cycle){
-						for(var k = 0; k < cycles[j].length;k++){
-							// DRAW point that splits this range
-							var point = cycles[j][k];
-							if(point){
+					if(showCasteljauIterations){
+						for(var j = 1; j<=maxDepth;j++ ){
+							var cycle = cycles[j] ? cycles[j] : undefined;
+							if(cycle){
+								for(var k = 0; k < cycles[j].length;k++){
+								// DRAW point that splits this range
+									var point = cycles[j][k];
+									if(point){
 								
-								c.fillStyle = tPointColor;
-								c.fillRect(point.x - pointSize / 2 ,point.y - pointSize / 2, pointSize, pointSize);
+										c.fillStyle = tPointColor;
+										c.fillRect(point.x - pointSize / 2 ,point.y - pointSize / 2, pointSize, pointSize);
 					
-							// DRAW LINES between splitPoints
-								if (i < cycles[j].length - 1) {
-									var nextPoint = cycles[j][k+1];
-									if(nextPoint){
-										c.moveTo(point.x,point.y);
-										c.lineTo(nextPoint.x,nextPoint.y);
+										// DRAW LINES between splitPoints
+										if (i < cycles[j].length - 1) {
+											var nextPoint = cycles[j][k+1];
+											if(nextPoint){
+												c.moveTo(point.x,point.y);
+												c.lineTo(nextPoint.x,nextPoint.y);
+											}
+										}
 									}
 								}
 							}
-						
-						
-						}
-						
+					
 						}
 					
 					}
