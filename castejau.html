@@ -72,8 +72,7 @@
 			var depthSlider;
 
 			var ctrlPointClicked;
-			var dragMode;
-			var ctrlPointToDrag;
+			var dragMode = false;
 
 			$(document).ready(function() {
 				canvas = document.getElementById("canvas");
@@ -83,9 +82,35 @@
 					"width" : width,
 					"height" : height
 				});
-
-				$(jCanvas).mousemove(function(e) {
+				
+				$(jCanvas).mousedown(function(e) {
+					for (var i = 0; i < ctrlPoints.length; i++) {
+						var clickPos = getMousePos(canvas, e);
+							if (Math.abs(ctrlPoints[i].x - clickPos.x) < pointSize / 2 && Math.abs(ctrlPoints[i].y - clickPos.y) < pointSize / 2) {
+								dragMode = true;
+								ctrlPointToDrag = i;
+								break;
+							} else {
+								dragMode = false;
+							}
+						}
+						
+						if(dragMode == false) {
+							var clickPos = getMousePos(canvas, e);
+							ctrlPoints.push(clickPos);
+							update();
+							updateSlider();
+						}
+				});
+				
+				$(jCanvas).mouseup(function(e) {
 					if(dragMode){
+						dragMode = false;
+					}
+				});
+				
+				$(jCanvas).mousemove(function(e) {
+					if(dragMode) {
 						ctrlPoints[ctrlPointToDrag].x = e.pageX;
 						ctrlPoints[ctrlPointToDrag].y = e.pageY;
 						update();
@@ -93,35 +118,6 @@
 					}
 				});
 
-				//MOUSEHANDLERS
-				jCanvas.click(function(e) {
-					var clickPos = getMousePos(canvas, e);
-					// TODO
-					if (!dragMode) {
-						ctrlPointClicked = false;
-						for (var i = 0; i < ctrlPoints.length; i++) {
-							if (Math.abs(ctrlPoints[i].x - clickPos.x) < pointSize / 2 && Math.abs(ctrlPoints[i].y - clickPos.y) < pointSize / 2) {
-								ctrlPointClicked = true;
-								dragMode = true;
-								ctrlPointToDrag = i;
-								break;
-							} else {
-								ctrlPointClicked = false;
-							}
-						}
-						//console.log(ctrlPoints.length)
-					} else {
-						dragMode = false;
-					}
-
-					if (!ctrlPointClicked) {
-						ctrlPoints.push(clickPos);
-						update();
-						updateSlider();
-					}
-					//console.log('controlPoints: '+ctrlPoints.length);
-					//console.log('curvePoints: '+curvePoints.length);
-				})
 				depthSlider = $('#depthSlider').slider({
 					animate : 'fast',
 					value : maxDepth,
