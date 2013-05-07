@@ -17,10 +17,11 @@
 		<p>max. Rekursionstiefe: <span id ="maxDepth">1</span></p>
 		<div id = "depthSlider" style="width:300px"></div>
 		<p>Teilungsverh&auml;ltnis: <span id ="t">0.2:0.8</span></p>
-
 		<div id = "tSlider" style="width:300px"></div>
-		<input type="button" name="reset" value="reset" id="reset"/>
-		<br/>
+		<p>Level of Detail:</p>
+		<div id = "detailSlider" style="width:300px"></div>
+		<p><input type="button" name="reset" value="reset" id="reset"/></p>
+		
 
 		show Iterations:
 		<input type="checkbox" name="showCasteljauIterations" id="showCasteljauIterations"/>
@@ -40,7 +41,7 @@
 
 		<script type="text/javascript">
 			// Teilunsverhältnis der Strecken. Modifizierbar durch JSlider
-
+			var lod = 1/5;
 			var t = 0.2;
 			// COLORS
 			var inactivePointColor = "#aaaaaa";
@@ -118,8 +119,9 @@
 				
 				$(jCanvas).mousemove(function(e) {
 					if(dragMode) {
-						ctrlPoints[ctrlPointToDrag].x = e.pageX;
-						ctrlPoints[ctrlPointToDrag].y = e.pageY ;
+
+						ctrlPoints[ctrlPointToDrag].x = getMousePos(canvas, e).x;
+						ctrlPoints[ctrlPointToDrag].y = getMousePos(canvas, e).y;
 						update();
 						updateSlider();					
 					}
@@ -146,6 +148,21 @@
 					slide : function(e, ui) {
 						t = ui.value / 100;
 						$('#t').text(t +':'+ (1-t));
+						update();
+					}
+				});
+				
+				//TODO
+				detailSlider = $('#detailSlider').slider({
+					animate : 'fast',
+					value : t,
+					min : 5,
+					max : 100,
+					slide : function(e, ui) {
+						
+						lod = 1 / ui.value;
+						console.log(lod);
+						//$('#t').text(t +':'+ (1-t));
 						update();
 					}
 				});
@@ -189,9 +206,8 @@
 
 			function drawCasteljau() {
 				canvas.width = canvas.width;
-				c.clearRect(0, 0, canvas.width, canvas.height);
 				c.fillStyle = backgroundColor;
-				c.fillRect(0, 0, canvas.width, canvas.height);
+				c.fillRect(0,0, width, height);
 				if (curvePoints.length > 0 && showCasteljauCurve) {
 					c.moveTo(curvePoints[0].x, curvePoints[0].y);
 					for (var i = 1; i < curvePoints.length; i++) {
@@ -231,7 +247,6 @@
 						maxDepth = cycles.length;
 						
 					if(showCasteljauIterations){
-					
 						for (var j = 1; j <= maxDepth; j++) {
 							var cycle = cycles[j] ? cycles[j] : undefined;
 							if (cycle) {
@@ -239,10 +254,8 @@
 									// DRAW point that splits this range
 									var point = cycles[j][k];
 									if (point) {
-
 										c.fillStyle = tPointColor;
 										c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
-
 										// DRAW LINES between splitPoints
 										if (k < cycles[j].length - 1) {
 											var nextPoint = cycles[j][k+1];
@@ -277,7 +290,7 @@
 			function evalCasteljau() {
 				curvePoints = [];
 				if (ctrlPoints.length >= 3) {
-					for (var i = 0.0; i <= 1.05; i += 0.05) {
+					for (var i = 0.0; i <= 1; i += lod) {
 						curvePoints.push
 						curvePoints.push(getCasteljauPoint(i));
 					}
