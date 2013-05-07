@@ -5,10 +5,11 @@
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
 		<link  rel="stylesheet" type="text/css" href="jquery-ui-1.10.3/css/ui-darkness/jquery-ui-1.10.3.custom.min.css">
+		<link  rel="stylesheet" type="text/css" href="css/styles.css">
 
 	</head>
 	<body>
-
+	<div id ="wrapper">
 		<canvas id="canvas" width="600" height="400">
 			No Html 5 support.
 		</canvas>
@@ -33,6 +34,10 @@
 		showCasteljau Point:
 		<input type="checkbox" name="showCasteljauPoint" id="showCasteljauPoint"/>
 
+	
+	
+	</div>
+
 		<script type="text/javascript">
 			// Teilunsverhältnis der Strecken. Modifizierbar durch JSlider
 
@@ -56,7 +61,7 @@
 
 			var pointSize = 10;
 
-			var width = 600;
+			var width = 700;
 			var height = 400;
 
 			var canvas;
@@ -79,6 +84,7 @@
 				canvas = document.getElementById("canvas");
 				c = canvas.getContext("2d");
 				jCanvas = $(canvas);
+				jCanvas.attr({"width":width,"height":height});
 				jCanvas.css({
 					"width" : width,
 					"height" : height

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="jquery-1.9.1.min.js"></script>
+		<script src="jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
+		<link  rel="stylesheet" type="text/css" href="jquery-ui-1.10.3/css/ui-darkness/jquery-ui-1.10.3.custom.min.css">
+
+	</head>
+	<body>
+
+		<canvas id="canvas" width="600" height="400">
+			No Html 5 support.
+		</canvas>
+		<!--<input type="text" name="t" value="0.2" id="t" />-->
+		<div id = "slider"></div>
+		<input type="button" name="reset" value="reset" id="reset"/>
+		<br/>
+
+		show lines:
+		<input type="checkbox" name="showCasteljauLine" value="checked" id="showCasteljauLine"/>
+		<br/>
+		showCasteljau Point:
+		<input type="checkbox" name="showCasteljauPoint" value="checked" id="showCasteljauPoint"/>
+
+		<script type="text/javascript">
+			// Teilunsverhältnis der Strecken. Modifizierbar durch JSlider
+
+			var t = 0.2;
+			// COLORS
+			var inactivePointColor = "#aaaaaa";
+			var inactiveLineColor = "#999999";
+			var activePointColor = "#aa00aa";
+			var activeLineColor = "#aa0000";
+
+			// Farbe für den Punkt der die Strecken einteilt
+			var tPointColor = "#dd0000";
+			var casteljauPointColor = "#0000dd";
+
+			var backgroundColor = "#eeeeee";
+
+			var showCastelJauIterations = false;
+			var showCasteljauLine = true;
+			var showTPoint = true;
+			showCasteljauPoint = true;
+
+			var pointSize = 10;
+
+			var width = 600;
+			var height = 400;
+
+			var canvas;
+			var c;
+			//Konstruktor Array([]) erzeugt array der länge 1, war das gewollt?
+			var ctrlPoints = new Array();
+			var curvePoints = new Array();
+			// Hier rein kommen die einzelnen lebenszyklen von der Kurve und den Punkten
+			var cycles = [[]];
+
+			$(document).ready(function() {
+				canvas = document.getElementById("canvas");
+				c = canvas.getContext("2d");
+				jCanvas = $(canvas);
+				jCanvas.css({
+					"width" : width,
+					"height" : height
+				});
+
+				//MOUSEHANDLERS
+				jCanvas.click(function(e) {
+					var clickPos = getMousePos(canvas, e);
+					// console.log(clickPos);
+					ctrlPoints.push(clickPos);
+					// NACH DEM ZWEITEN KLICK SIND HIER ALLE GLEICH... WTF
+					//for (var i=0; i < ctrlPoints.length; i++) {
+					//	console.log(ctrlPoints[i].x+" , "+ctrlPoints[i].y);
+					//};
+					// console.log( ctrlPoints[ctrlPoints.length-1]);
+					// CLICKPOS[0] ÄNDERT SICH NACH MEHREREN KLICKS... WTF
+					update();
+					//console.log('controlPoints: '+ctrlPoints.length);
+					//console.log('curvePoints: '+curvePoints.length);
+				})
+
+				$('#slider').slider({
+					animate : 'fast',
+					value : t * 100,
+					min : 1,
+					max : 100,
+					slide : function(e, ui) {
+						t = ui.value / 100;
+						update();
+					}
+				});
+				$('showCasteljauLine').change(function(e){
+					
+				})
+				$('#reset').click(function(e) {
+					reset();
+				});
+
+				$('#t').blur(function(e) {
+					console.log("t set to " + this.value);
+					t = this.value;
+					update();
+				})
+				// INIT STAGE
+				update();
+			})
+			function update() {
+
+				evalCasteljau();
+				drawCasteljau();
+			}
+
+			function drawCasteljau() {
+				canvas.width = canvas.width;
+				c.clearRect(0, 0, width, height);
+				c.fillStyle = backgroundColor;
+				c.fillRect(0, 0, width, height);
+
+				if (curvePoints.length > 0) {
+					c.moveTo(curvePoints[0].x, curvePoints[0].y);
+					for (var i = 1; i < curvePoints.length; i++) {
+						c.strokeStyle = activeLineColor;
+						c.lineTo(curvePoints[i].x, curvePoints[i].y);
+						c.stroke();
+					}
+				}
+
+				for (var i = 0; i < ctrlPoints.length; i++) {
+					c.moveTo(ctrlPoints[i].x, ctrlPoints[i].y);
+					if (i < ctrlPoints.length - 1) {
+						if (showCasteljauLine) {
+							// DRAW lines between ctrlpoints
+							c.lineTo(ctrlPoints[i + 1].x, ctrlPoints[i + 1].y);
+							c.strokeStyle = inactiveLineColor;
+							c.stroke();
+							
+							// DRAW point that splits this range
+							c.fillStyle = tPointColor;
+							c.fillRect((ctrlPoints[i].x * (1 - t) + t * ctrlPoints[i + 1].x) - pointSize / 2, (ctrlPoints[i].y * (1 - t) + t * ctrlPoints[i + 1].y ) - pointSize / 2, pointSize, pointSize);
+							
+							// DRAW LINES between splitPoints
+							if (i < ctrlPoints.length - 2) {
+					
+								c.moveTo((ctrlPoints[i].x * (1 - t) + t * ctrlPoints[i + 1].x), (ctrlPoints[i].y * (1 - t) + t * ctrlPoints[i + 1].y ));
+								c.lineTo((ctrlPoints[i+1].x * (1 - t) + t * ctrlPoints[i + 2].x), (ctrlPoints[i+1].y * (1 - t) + t * ctrlPoints[i + 2].y ));
+							}
+						}
+					}
+					c.fillStyle = activePointColor;
+					c.fillRect(ctrlPoints[i].x - pointSize / 2, ctrlPoints[i].y - pointSize / 2, pointSize, pointSize);
+
+					if (showCasteljauPoint && ctrlPoints.length >= 3) {
+						c.fillStyle = casteljauPointColor;
+						point = getCasteljauPoint(t);
+						c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
+
+					}
+
+				}
+			}
+
+			function evalCasteljau() {
+				curvePoints = [];
+				if (ctrlPoints.length >= 3) {
+					for (var i = 0.0; i <= 1.0; i += 0.05) {
+						curvePoints.push
+						curvePoints.push(getCasteljauPoint(i));
+					}
+				}
+			}
+
+			function getCasteljauPoint(t) {
+				var tempPoints = [];
+				var n = ctrlPoints.length - 1;
+
+				for (var i = 0; i <= n; i++) {
+					tempPoints.push({
+						x : ctrlPoints[i].x,
+						y : ctrlPoints[i].y
+					});
+				}
+				// console.log(ctrlPoints);
+
+				for (var k = 1; k <= n; k++) {
+					for (var i = 0; i <= n - k; i++) {
+						tempPoints[i].x = t * tempPoints[i].x + (1 - t) * tempPoints[i + 1].x;
+						tempPoints[i].y = t * tempPoints[i].y + (1 - t) * tempPoints[i + 1].y;
+					}
+				}
+				// HIER STEHT ÜBERALL DAS GLEICHE DRIN. WARUM DIE FOR SCHLEIFE WENN WIR EH NUR [0] ZURUECKGEBEN?
+
+				return tempPoints[0];
+				//console.log(tempPoints);
+
+			}
+
+			function getMousePos(canvas, evt) {
+				var rect = canvas.getBoundingClientRect();
+				// console.log(evt);
+				//console.log((evt.clientX - rect.left)+" "+(evt.clientY - rect.top)	);
+				return {
+					x : evt.clientX - rect.left,
+					y : evt.clientY - rect.top
+				};
+
+			}
+
+			function reset() {
+				console.log('reset');
+				canvas.width = canvas.width;
+				ctrlPoints = [];
+				curvePoints = [];
+				update();
+			}
+
+		</script>
+	</body>
+</html>
