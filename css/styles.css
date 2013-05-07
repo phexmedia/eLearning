@@ -52,7 +52,10 @@ table {
 	margin: 50px auto;
 	background:#CCCCCC;
 	padding-top:1px;
-	
+}
+
+p {
+	margin:1em 0em;
 }
 
 /* http://phexmedia.de/Elearning/Decasteljau
