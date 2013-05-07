@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset='utf-8'>
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
 		<link  rel="stylesheet" type="text/css" href="jquery-ui-1.10.3/css/ui-darkness/jquery-ui-1.10.3.custom.min.css">
@@ -12,9 +13,13 @@
 			No Html 5 support.
 		</canvas>
 		<!--<input type="text" name="t" value="0.2" id="t" />-->
-		<p>max. Rekursionstiefe:</p>
+		<p>
+			max. Rekursionstiefe:
+		</p>
 		<div id = "depthSlider" style="width:300px"></div>
-		<p>Teilungsverhältnis:</p>
+		<p>
+			Teilungsverhältnis:
+		</p>
 		<div id = "tSlider" style="width:300px"></div>
 		<input type="button" name="reset" value="reset" id="reset"/>
 		<br/>
@@ -43,7 +48,7 @@
 			var casteljauPointColor = "#0000dd";
 
 			var backgroundColor = "#eeeeee";
-			
+
 			var showCasteljauCurve = true;
 			var showCastelJauIterations = false;
 			var showCasteljauLine = true;
@@ -63,10 +68,13 @@
 			// Hier rein kommen die einzelnen Punkte der rekursionen des decasteljau rein
 			var cycles = new Array(new Array());
 			var maxDepth = 1;
-			
+
 			var tSlider;
 			var depthSlider;
 
+			var ctrlPointClicked;
+			var dragMode;
+			var ctrlPointToDrag;
 
 			$(document).ready(function() {
 				canvas = document.getElementById("canvas");
@@ -80,25 +88,40 @@
 				//MOUSEHANDLERS
 				jCanvas.click(function(e) {
 					var clickPos = getMousePos(canvas, e);
-					// console.log(clickPos);
-					ctrlPoints.push(clickPos);
-					// NACH DEM ZWEITEN KLICK SIND HIER ALLE GLEICH... WTF
-					//for (var i=0; i < ctrlPoints.length; i++) {
-					//	console.log(ctrlPoints[i].x+" , "+ctrlPoints[i].y);
-					//};
-					// console.log( ctrlPoints[ctrlPoints.length-1]);
-					// CLICKPOS[0] ÄNDERT SICH NACH MEHREREN KLICKS... WTF
-					update();
-					updateSlider();
+					// TODO
+					if (!dragMode) {
+						ctrlPointClicked = false;
+						for (var i = 0; i < ctrlPoints.length; i++) {
+							if (Math.abs(ctrlPoints[i].x - clickPos.x) < pointSize / 2 && Math.abs(ctrlPoints[i].y - clickPos.y) < pointSize / 2) {
+								ctrlPointClicked = true;
+								dragMode = true;
+								ctrlPointToDrag = i; 
+								break;
+							} else {
+								ctrlPointClicked = false;
+							}
+						}
+						//console.log(ctrlPoints.length)
+					} else {
+						dragMode = false;
+						ctrlPoints[ctrlPointToDrag].x = clickPos.x;
+						ctrlPoints[ctrlPointToDrag].y = clickPos.y;
+						update();
+						updateSlider();
+					}
 
+					if (!ctrlPointClicked) {
+						ctrlPoints.push(clickPos);
+						update();
+						updateSlider();
+					}
 					//console.log('controlPoints: '+ctrlPoints.length);
 					//console.log('curvePoints: '+curvePoints.length);
 				})
-				
 				depthSlider = $('#depthSlider').slider({
 					animate : 'fast',
 					value : maxDepth,
-					step: 1,
+					step : 1,
 					min : 0,
 					max : maxDepth,
 					slide : function(e, ui) {
@@ -117,18 +140,18 @@
 						update();
 					}
 				});
-				
-				$('#showCasteljauCurve').change(function(e){
+
+				$('#showCasteljauCurve').change(function(e) {
 					showCasteljauCurve = this.value;
 					update();
 				}).attr("checked", showCasteljauCurve);
-				
-				$('#showCasteljauLine').change(function(e){
+
+				$('#showCasteljauLine').change(function(e) {
 					showCasteljauLine = this.value;
 					update();
 				}).attr("checked", showCasteljauLine);
-				
-				$('#showCasteljauPoint').change(function(e){
+
+				$('#showCasteljauPoint').change(function(e) {
 					showCasteljauPoint = this.value;
 					update();
 				}).attr("checked", showCasteljauPoint);
@@ -145,15 +168,14 @@
 				// INIT STAGE
 				update();
 			})
-			
 			function update() {
 
 				evalCasteljau();
 				drawCasteljau();
 			}
-			
-			function updateSlider(){
-				depthSlider.slider("option","max", cycles.length-1);
+
+			function updateSlider() {
+				depthSlider.slider("option", "max", cycles.length - 1);
 			}
 
 			function drawCasteljau() {
@@ -178,56 +200,56 @@
 							c.lineTo(ctrlPoints[i + 1].x, ctrlPoints[i + 1].y);
 							c.strokeStyle = inactiveLineColor;
 							c.stroke();
-							
+
 						}
 					}
 					//DRAW CONTROLPOINTS
 					c.fillStyle = activePointColor;
 					c.fillRect(ctrlPoints[i].x - pointSize / 2, ctrlPoints[i].y - pointSize / 2, pointSize, pointSize);
-					
+
 					//DRAW CASTELJAUPOINT FOR GIVEN T FROM SLIDER
 					if (showCasteljauPoint && ctrlPoints.length >= 3) {
 						c.fillStyle = casteljauPointColor;
-						point = getCasteljauPoint(1-t);
+						point = getCasteljauPoint(1 - t);
 						c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
 
 					}
-					
+
 					//DRAW HELPLINES
-					if (maxDepth > cycles.length) maxDepth = cycles.length;
-					
-					for(var j = 1; j<=maxDepth;j++ ){
+					if (maxDepth > cycles.length)
+						maxDepth = cycles.length;
+
+					for (var j = 1; j <= maxDepth; j++) {
 						var cycle = cycles[j] ? cycles[j] : undefined;
-						if(cycle){
-						for(var k = 0; k < cycles[j].length;k++){
-							// DRAW point that splits this range
-							var point = cycles[j][k];
-							if(point){
-								
-								c.fillStyle = tPointColor;
-								c.fillRect(point.x - pointSize / 2 ,point.y - pointSize / 2, pointSize, pointSize);
-					
-							// DRAW LINES between splitPoints
-								if (i < cycles[j].length - 1) {
-									var nextPoint = cycles[j][k+1];
-									if(nextPoint){
-										c.moveTo(point.x,point.y);
-										c.lineTo(nextPoint.x,nextPoint.y);
+						if (cycle) {
+							for (var k = 0; k < cycles[j].length; k++) {
+								// DRAW point that splits this range
+								var point = cycles[j][k];
+								if (point) {
+
+									c.fillStyle = tPointColor;
+									c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
+
+									// DRAW LINES between splitPoints
+									if (i < cycles[j].length - 1) {
+										var nextPoint = cycles[j][k + 1];
+										if (nextPoint) {
+											c.moveTo(point.x, point.y);
+											c.lineTo(nextPoint.x, nextPoint.y);
+										}
 									}
 								}
+
 							}
-						
-						
+
 						}
-						
-						}
-					
+
 					}
 
 				}
 			}
-			
-			function drawRecursions(maxDepth){
+
+			function drawRecursions(maxDepth) {
 				for (var k = 1; k <= n; k++) {
 					for (var i = 0; i <= n - k; i++) {
 						tempPoints[i].x = t * tempPoints[i].x + (1 - t) * tempPoints[i + 1].x;
@@ -264,9 +286,12 @@
 					for (var i = 0; i <= n - k; i++) {
 						tempPoints[i].x = t * tempPoints[i].x + (1 - t) * tempPoints[i + 1].x;
 						tempPoints[i].y = t * tempPoints[i].y + (1 - t) * tempPoints[i + 1].y;
-						tmp.push({x:tempPoints[i].x,y:tempPoints[i].y})
+						tmp.push({
+							x : tempPoints[i].x,
+							y : tempPoints[i].y
+						})
 					}
-						cycles.push(tmp);
+					cycles.push(tmp);
 				}
 				// HIER STEHT ÜBERALL DAS GLEICHE DRIN. WARUM DIE FOR SCHLEIFE WENN WIR EH NUR [0] ZURUECKGEBEN?
 
