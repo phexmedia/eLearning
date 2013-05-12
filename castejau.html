@@ -15,6 +15,13 @@
 				<canvas id="canvas" width="960" height="400">
 					No Html 5 support.
 				</canvas>
+				<div id="info-content" style="display: none">
+					Anleitung:<br /><br />
+					- Punkt löschen: Doppelklick auf Kontrollpunkt.<br />
+					- Punkt verschieben: Drag & Drop<br />
+					- Puknt hinzufügen: Einfacher Mausklick auf Canvas<br /><br />
+					  Von Manuel Graf und Michael Prummer.
+				</div>
 				<div class="sliderWrapper">
 					<p>
 						max. Rekursionstiefe: <span id ="maxDepth">0</span>
@@ -34,9 +41,10 @@
 					<div id = "detailSlider"></div>
 				</div>
 				<div class="clear"></div>
-				<p>
-					<input type="button" name="reset" value="Reset" id="reset"/>
-				</p>
+				<ul id="side-btns">
+					<li><input type="button" name="reset" value="Reset" id="reset"/></li>
+					<li><input type="button" name="info" value="About" id="info" onclick="showAbout()"/></li>
+				</ul>
 				<ul id="settings">
 					<li class="setting-item">
 						<span>Show Curve</span>
@@ -387,7 +395,14 @@
 				curvePoints = [];
 				update();
 			}
-
+			function showAbout() {
+				if($("#info-content").is(":visible")){
+					$("#info-content").hide();
+				} else {
+					$("#info-content").show();
+					
+				}
+			}
 		</script>
 	</body>
 </html>

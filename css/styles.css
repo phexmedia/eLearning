@@ -67,7 +67,9 @@ div {
 .clear {
 	clear: both
 }
-
+#canvas, #wrapper {
+	border-radius: 0.35em;
+}
 #settings input {
 	text-shadow:0px 1px 0px #fff;
 }
@@ -84,8 +86,12 @@ div {
 	float:right;	
 }
 
-
-input#reset {
-	padding:0.3em 2em;
-	float: right;
+#side-btns {
+	float:right;
 }
+
+#side-btns input {
+	padding:0.3em 0em;
+	width: 10em;
+}
+
