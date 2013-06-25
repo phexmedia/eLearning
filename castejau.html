@@ -79,7 +79,7 @@
 
 			// Farbe für den Punkt der die Strecken einteilt
 			var tPointColor = "#dd0000";
-			var casteljauPointColor = "#0000dd";
+			var casteljauPointColor = "#00aaff";
 
 			var backgroundColor = "#eeeeee";
 
@@ -89,7 +89,9 @@
 			var showCasteljauPoint = false;
 
 			var pointSize = 10;
-
+			var strokeWidth = 2;
+			var strokeColor = "#333333"
+			
 			var width = 920;
 			var height = 400;
 
@@ -258,36 +260,40 @@
 				c.fillStyle = backgroundColor;
 				c.fillRect(0, 0, width, height);
 				if (curvePoints.length > 0 && showCasteljauCurve) {
-					c.moveTo(curvePoints[0].x, curvePoints[0].y);
-					for (var i = 1; i < curvePoints.length; i++) {
-						c.strokeStyle = activeLineColor;
-						c.lineTo(curvePoints[i].x, curvePoints[i].y);
-						c.stroke();
+					//c.moveTo(curvePoints[0].x, curvePoints[0].y);
+					for (var i = 0; i < curvePoints.length-1; i++) {
+						drawLine(curvePoints[i].x, curvePoints[i].y,curvePoints[i + 1].x, curvePoints[i + 1].y,casteljauPointColor,2)
+						//c.strokeStyle = activeLineColor;
+						//c.lineTo(curvePoints[i].x, curvePoints[i].y);
+						//c.stroke();
 					}
 				}
 
 				for (var i = 0; i < ctrlPoints.length; i++) {
-					c.moveTo(ctrlPoints[i].x, ctrlPoints[i].y);
+					
 					if (i < ctrlPoints.length - 1) {
 						if (showCasteljauLine) {
 							// DRAW lines between ctrlpoints
-							console.log(ctrlPoints[i].x + "," + ctrlPoints[i].y + "to" + ctrlPoints[i + 1].x + ", " + ctrlPoints[i + 1].y);
-							c.lineTo(ctrlPoints[i + 1].x, ctrlPoints[i + 1].y);
-							c.strokeStyle = inactiveLineColor;
-							c.stroke();
+							drawLine(ctrlPoints[i].x, ctrlPoints[i].y,ctrlPoints[i + 1].x, ctrlPoints[i + 1].y,inactiveLineColor,1)
+							//console.log(ctrlPoints[i].x + "," + ctrlPoints[i].y + "to" + ctrlPoints[i + 1].x + ", " + ctrlPoints[i + 1].y);
+							//c.strokeStyle = inactiveLineColor;
+							//c.lineTo(ctrlPoints[i + 1].x, ctrlPoints[i + 1].y)
+							//c.stroke();
 						}
 					}
 					//DRAW CONTROLPOINTS
-					c.fillStyle = activePointColor;
-					c.fillRect(ctrlPoints[i].x - pointSize / 2, ctrlPoints[i].y - pointSize / 2, pointSize, pointSize);
+					drawCircle(ctrlPoints[i].x, ctrlPoints[i].y,pointSize,activePointColor)
+					//c.fillStyle = activePointColor;
+					//c.fillRect(ctrlPoints[i].x - pointSize / 2, ctrlPoints[i].y - pointSize / 2, pointSize, pointSize);
 				}
 				//DRAW CASTELJAUPOINT FOR GIVEN T FROM SLIDER
 				//NIEMALS VERSCHIEBEN, LÖSCHEN ODER SO! Das hier befüllt cycles mit dem aktuellen wert. sollte einmal nach evalCasteljau kommen!
 				var point = getCasteljauPoint(1 - t);
 
 				if (showCasteljauPoint && ctrlPoints.length >= 3) {
-					c.fillStyle = casteljauPointColor;
-					c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
+					drawCircle(point.x, point.y,pointSize,casteljauPointColor)
+					
+					//c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
 
 				}
 
@@ -303,17 +309,21 @@
 								// DRAW point that splits this range
 								var point = cycles[j][k];
 								if (point) {
-									c.fillStyle = tPointColor;
-									c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
-									// DRAW LINES between splitPoints
 									if (k < cycles[j].length - 1) {
 										var nextPoint = cycles[j][k + 1];
 										if (nextPoint) {
-											c.moveTo(point.x, point.y);
-											c.lineTo(nextPoint.x, nextPoint.y);
-											c.stroke();
+											drawLine(point.x, point.y,nextPoint.x, nextPoint.y,tPointColor,2);
+											//c.moveTo(point.x, point.y);
+											
+											//c.lineTo(nextPoint.x, nextPoint.y);
+											
+											//c.stroke();
 										}
 									}
+									drawCircle(point.x,point.y,pointSize/2,tPointColor)
+									//c.fillStyle = tPointColor;
+									//c.fillRect(point.x - pointSize / 2, point.y - pointSize / 2, pointSize, pointSize);
+									// DRAW LINES between splitPoints
 								}
 
 							}
@@ -375,6 +385,26 @@
 				return tempPoints[0];
 				//console.log(tempPoints);
 
+			}
+			
+			function drawLine(x1,y1,x2,y2,color,width){
+					c.moveTo(x1,y1);
+					c.lineWidth = width;
+					c.strokeStyle = color;
+					c.lineTo(x2,y2)
+					c.stroke();
+				
+			}
+			
+			function drawCircle(x,y,radius,color){
+					c.beginPath();
+					c.arc(x, y, radius, 0, 2 * Math.PI, false);
+					c.fillStyle = color;
+					c.fill();
+					c.lineWidth = 1;
+					c.strokeStyle = '#333333';
+					c.stroke();
+				
 			}
 
 			function getMousePos(canvas, evt) {
